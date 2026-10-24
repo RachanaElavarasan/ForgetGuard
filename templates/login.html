@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — ForgetGuard IoT Space Sentinel</title>
+  <meta name="description" content="Secure login portal for ForgetGuard IoT Forgotten Object and Last-Person-Out Detection System.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      background-image: 
+        radial-gradient(circle at 20% 25%, rgba(6, 182, 212, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 80% 75%, rgba(139, 92, 246, 0.12) 0%, transparent 45%);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 960px;
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 35px -5px rgba(6, 182, 212, 0.2);
+      overflow: hidden;
+    }
+
+    /* Left Promo Side */
+    .login-brand-side {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85));
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .login-logo-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35);
+    }
+
+    .login-logo-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .login-brand-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(90deg, #fff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .login-tagline {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .feature-points {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .feat-point {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+    }
+
+    .feat-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: rgba(6, 182, 212, 0.15);
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .feat-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .system-status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-size: 0.78rem;
+      color: #10b981;
+      padding: 0.6rem 0.9rem;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 10px;
+      margin-top: 2.5rem;
+    }
+
+    /* Right Form Side */
+    .login-form-side {
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-header-text h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 0.35rem;
+    }
+
+    .login-header-text p {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      margin-bottom: 1.75rem;
+    }
+
+    /* Role Toggle Tabs */
+    .role-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.35rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 1.75rem;
+    }
+
+    .role-tab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.7rem 0.5rem;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .role-tab-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .role-tab-btn.active.admin-active {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: #fff;
+    }
+
+    .role-tab-btn.active.student-active {
+      background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+      color: #fff;
+    }
+
+    .role-tab-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Form Fields */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .input-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 0.4rem;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.92rem;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #38bdf8;
+      background: rgba(255, 255, 255, 0.07);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+    }
+
+    .btn-login-submit {
+      margin-top: 0.5rem;
+      padding: 0.85rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      border: none;
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-login-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(6, 182, 212, 0.4);
+    }
+
+    /* Quick 1-Click Demo Logins */
+    .quick-login-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1.5rem 0 1rem 0;
+      font-size: 0.75rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .quick-login-divider::before,
+    .quick-login-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .quick-demo-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .btn-quick-role {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 0.95rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      color: #cbd5e1;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-quick-role:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      transform: translateX(3px);
+    }
+
+    .btn-quick-role span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .role-badge-pill {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-admin { background: rgba(6, 182, 212, 0.2); color: #38bdf8; }
+    .badge-student { background: rgba(139, 92, 246, 0.2); color: #c084fc; }
+
+    /* Alert Message */
+    .login-error {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #f43f5e;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 800px) {
+      .login-container {
+        grid-template-columns: 1fr;
+      }
+      .login-brand-side {
+        display: none;
+      }
+      .login-form-side {
+        padding: 2.25rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-container">
+      <!-- Left Brand & Features Panel -->
+      <div class="login-brand-side">
+        <div>
+          <div class="login-logo">
+            <div class="login-logo-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <circle cx="12" cy="11" r="3"/>
+              </svg>
+            </div>
+            <div>
+              <div class="login-brand-title">ForgetGuard</div>
+              <span class="badge-iot">IoT Space Sentinel</span>
+            </div>
+          </div>
+          <p class="login-tagline">
+            Automated forgotten object detection, RFID belongings verification, and appliance power isolation for laboratories and campus spaces.
+          </p>
+
+          <div class="feature-points">
+            <div class="feat-point">
+              <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div><strong>Smart Exit Checklist:</strong> Verify essential items (Bags, Keys, Wallet, Chargers) before exiting rooms.</div>
+            </div>
+            <div class="feat-point">
+              <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div><strong>Last-Person-Out Sentinel:</strong> PIR & RFID fusion alerts when spaces become empty with items inside.</div>
+            </div>
+            <div class="feat-point">
+              <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div><strong>Appliance Isolation:</strong> Remote emergency cutoffs for projectors and ACs left running.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="system-status-indicator">
+          <span class="pulse-indicator"></span>
+          <span>Central Gateway Hub Active · Telemetry v2.4</span>
+        </div>
+      </div>
+
+      <!-- Right Login Form Panel -->
+      <div class="login-form-side">
+        <div class="login-header-text">
+          <h3 id="form-heading">Access ForgetGuard</h3>
+          <p id="form-subheading">Choose your role to sign into the system</p>
+        </div>
+
+        <!-- Role Selector Tabs -->
+        <div class="role-tabs">
+          <button type="button" class="role-tab-btn active admin-active" id="tab-admin" onclick="selectRole('admin')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Administrator
+          </button>
+          <button type="button" class="role-tab-btn" id="tab-student" onclick="selectRole('student')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            Student / Employee
+          </button>
+        </div>
+
+        {% if success %}
+        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #10b981; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.82rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          {{ success }}
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="login-error">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Login Form -->
+        <form class="login-form" method="POST" action="/login">
+          <input type="hidden" name="role" id="input-role" value="admin">
+
+          <div>
+            <div class="input-label-row">
+              <label for="username">Username / ID</label>
+            </div>
+            <input type="text" id="username" name="username" class="input-field" required placeholder="admin" value="admin">
+          </div>
+
+          <div>
+            <div class="input-label-row">
+              <label for="password">Password</label>
+            </div>
+            <input type="password" id="password" name="password" class="input-field" required placeholder="••••••••" value="admin123">
+          </div>
+
+          <button type="submit" class="btn-login-submit" id="btn-submit-text">
+            Sign In to Dashboard
+          </button>
+
+          <div style="text-align: center; margin-top: 0.5rem; font-size: 0.85rem; color: #94a3b8;">
+            New user?
+            <a href="/register" style="color: #38bdf8; font-weight: 700; text-decoration: none; margin-left: 0.35rem;">Register New Account</a>
+          </div>
+        </form>
+
+        <!-- Fast 1-Click Demo Login Shortcuts -->
+        <div class="quick-login-divider">
+          <span>Fast 1-Click Demo Sign-in</span>
+        </div>
+
+        <div class="quick-demo-buttons">
+          <button type="button" class="btn-quick-role" onclick="fillAndSubmit('admin', 'admin123', 'admin')">
+            <span>🛡️ Chief Lab Administrator</span>
+            <span class="role-badge-pill badge-admin">Admin</span>
+          </button>
+          <button type="button" class="btn-quick-role" onclick="fillAndSubmit('student', 'student123', 'student')">
+            <span>🎓 Alex Rivera (Research Student)</span>
+            <span class="role-badge-pill badge-student">Student</span>
+          </button>
+          <button type="button" class="btn-quick-role" onclick="fillAndSubmit('faculty', 'faculty123', 'student')">
+            <span>💼 Dr. Sarah Chen (Faculty / Employee)</span>
+            <span class="role-badge-pill badge-student">Employee</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function selectRole(role) {
+      const tabAdmin = document.getElementById('tab-admin');
+      const tabStudent = document.getElementById('tab-student');
+      const inputRole = document.getElementById('input-role');
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+      const heading = document.getElementById('form-heading');
+      const subheading = document.getElementById('form-subheading');
+
+      inputRole.value = role;
+
+      if (role === 'admin') {
+        tabAdmin.className = 'role-tab-btn active admin-active';
+        tabStudent.className = 'role-tab-btn';
+        usernameInput.value = 'admin';
+        passwordInput.value = 'admin123';
+        heading.innerText = 'Administrator Portal';
+        subheading.innerText = 'Full system control, IoT gateway & device cutoffs';
+      } else {
+        tabStudent.className = 'role-tab-btn active student-active';
+        tabAdmin.className = 'role-tab-btn';
+        usernameInput.value = 'student';
+        passwordInput.value = 'student123';
+        heading.innerText = 'Student & Employee Portal';
+        subheading.innerText = 'Track personal belongings & Smart Exit Checklist';
+      }
+    }
+
+    function fillAndSubmit(user, pass, role) {
+      selectRole(role);
+      document.getElementById('username').value = user;
+      document.getElementById('password').value = pass;
+      document.getElementById('input-role').value = role;
+      document.querySelector('.login-form').submit();
+    }
+  </script>
+</body>
+</html>

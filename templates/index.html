@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ForgetGuard — IoT Forgotten Object & Last-Person-Out Security Sentinel</title>
+  <meta name="description" content="IoT system detecting missing bags, keys, wallets, chargers and active appliances when leaving spaces.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <circle cx="12" cy="11" r="3"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h2>ForgetGuard</h2>
+          <span class="badge-iot">IoT Edge Sentinel</span>
+        </div>
+      </div>
+
+      <!-- User Profile Card in Sidebar -->
+      <div class="user-profile-card">
+        <div class="user-avatar-circle">{{ user.name[0] }}</div>
+        <div class="user-info-text">
+          <div class="user-full-name">{{ user.name }}</div>
+          <span class="user-role-badge role-{{ user.role }}">
+            {% if user.role == 'admin' %}🛡️ Administrator{% else %}🎓 Student / Employee{% endif %}
+          </span>
+        </div>
+        <a href="/logout" class="btn-logout-icon" title="Sign Out">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-link active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Live Dashboard
+        </button>
+        <button class="nav-link" data-tab="checklist">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Smart Exit Checklist
+        </button>
+        <button class="nav-link" data-tab="analytics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          History & Analytics
+        </button>
+        <button class="nav-link" data-tab="rooms">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Monitored Rooms
+        </button>
+        <button class="nav-link" data-tab="objects">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Registered Objects
+        </button>
+        <button class="nav-link" data-tab="devices">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Appliance Power Cutoff
+        </button>
+        <button class="nav-link" data-tab="simulation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          IoT Simulator & Sandbox
+        </button>
+      </nav>
+
+      <!-- Hardware Node Simulation Card -->
+      <div class="hardware-box">
+        <div class="hardware-box-title">ESP32 Hardware Node</div>
+        <div class="hw-item">
+          <span>🔊 Buzzer:</span>
+          <strong id="hw-buzzer-text" class="hw-ok">Silent</strong>
+        </div>
+        <div class="hw-item">
+          <span>💡 Status LED:</span>
+          <strong id="hw-led-text" class="hw-green">🟢 Solid Green</strong>
+        </div>
+        <div class="hw-item">
+          <span>📡 RFID Reader:</span>
+          <strong class="hw-cyan">MFRC522 Online</strong>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="voice-toggle-row">
+          <label class="switch-label">
+            <input type="checkbox" id="voice-alerts-toggle" checked>
+            <span class="switch-slider"></span>
+            <span class="switch-text">🔊 Voice Alerts</span>
+          </label>
+          <button id="btn-test-voice" class="btn-micro" title="Test Voice">Speak</button>
+        </div>
+        <div class="refresh-info">
+          <span>Auto-poll: 3s</span>
+          <button id="btn-manual-refresh" title="Refresh Now" class="icon-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="top-header">
+        <div class="header-titles">
+          <h1>ForgetGuard: Space Sentinel & Forgotten Item Detection</h1>
+          <p class="subtitle">Monitors spaces, detects when the room becomes empty, and protects bags, keys, wallets & chargers.</p>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-quick-simulate" class="btn btn-warning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Trigger "Last Person Out"
+          </button>
+          <button id="btn-reset-demo" class="btn btn-secondary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Reset Demo Data
+          </button>
+          <a href="/logout" class="btn btn-ghost" style="text-decoration: none;">Sign Out</a>
+        </div>
+      </header>
+
+      <!-- Tab: Live Dashboard -->
+      <div class="tab-content active" id="tab-dashboard">
+        <!-- KPI Overview Cards + Departure Readiness Score -->
+        <section class="kpi-grid">
+          <!-- Departure Readiness Score Widget -->
+          <div class="kpi-card readiness-card" id="card-readiness">
+            <div class="kpi-header">
+              <span class="kpi-label">Departure Readiness</span>
+              <span class="score-badge" id="score-status-text">Good</span>
+            </div>
+            <div class="score-display">
+              <span class="kpi-value score-val" id="kpi-readiness-val">100%</span>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="readiness-bar-fill" style="width: 100%;"></div>
+              </div>
+            </div>
+            <div class="kpi-subtext" id="kpi-readiness-sub">Checks belongings & appliances before departure</div>
+          </div>
+
+          <div class="kpi-card danger-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Active Urgent Alerts</span>
+              <span class="kpi-icon-wrap icon-danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </span>
+            </div>
+            <div class="kpi-value" id="kpi-alerts">0</div>
+            <div class="kpi-subtext" id="kpi-alerts-sub">Items left or appliances running in empty spaces</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Items Left Behind</span>
+              <span class="kpi-icon-wrap icon-warning">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              </span>
+            </div>
+            <div class="kpi-value" id="kpi-forgotten">0</div>
+            <div class="kpi-subtext"><span id="kpi-high-pri-count">0</span> High-priority items at immediate risk</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Appliances Left ON</span>
+              <span class="kpi-icon-wrap icon-cyan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </span>
+            </div>
+            <div class="kpi-value" id="kpi-devices-on">0</div>
+            <div class="kpi-subtext">Active electrical loads in vacant rooms</div>
+          </div>
+        </section>
+
+        <!-- Active Alerts Section -->
+        <section class="section-container" id="alerts-section">
+          <div class="section-header">
+            <div class="title-with-badge">
+              <h2>Real-Time Security & Sentinel Alerts</h2>
+              <span class="count-badge" id="alert-counter-badge">0 Active</span>
+            </div>
+            <div class="section-actions">
+              <button id="btn-resolve-all" class="btn btn-sm btn-ghost">Dismiss / Resolve All</button>
+            </div>
+          </div>
+          <div id="alerts-container" class="alerts-feed">
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <p>All facilities secure. No forgotten belongings or unattended appliances detected.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-container">
+          <div class="section-header">
+            <h2>Space Sentinel Overview</h2>
+            <p class="section-desc">Interactive room cards showing real-time occupancy, detected items with priority levels, and appliances.</p>
+          </div>
+          <div id="rooms-grid" class="rooms-grid"></div>
+        </section>
+      </div>
+
+      <!-- Tab: Smart Exit Checklist -->
+      <div class="tab-content" id="tab-checklist">
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>Personalized Smart Exit Checklist</h2>
+              <p class="section-desc">Verify your required personal objects (Bags, Keys, Wallet, Chargers, ID) before leaving the facility.</p>
+            </div>
+            <button class="btn btn-secondary" onclick="resetChecklist()">Reset Checklist</button>
+          </div>
+          <div class="checklist-grid" id="checklist-container"></div>
+        </section>
+      </div>
+
+      <!-- Tab: Forgotten Object History & Analytics -->
+      <div class="tab-content" id="tab-analytics">
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>Forgotten Object History & Analytics</h2>
+              <p class="section-desc">Historical log of prevented forgotten items and appliance hazard events.</p>
+            </div>
+          </div>
+          <div class="analytics-stat-row" id="analytics-stat-row"></div>
+          <div class="table-container" style="margin-top: 1.5rem;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item / Appliance</th>
+                  <th>Category</th>
+                  <th>Priority</th>
+                  <th>Room</th>
+                  <th>Incident Type</th>
+                  <th>Timestamp</th>
+                  <th>Duration Forgotten</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab: Monitored Rooms -->
+      <div class="tab-content" id="tab-rooms">
+        <section class="section-container">
+          <div class="section-header">
+            <h2>Manage Monitored Facilities</h2>
+            <button class="btn btn-primary" id="btn-open-add-room-modal">+ Register New Room</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Room Name</th>
+                  <th>Facility Code</th>
+                  <th>Occupancy</th>
+                  <th>Last Motion Detected</th>
+                  <th>Items Present</th>
+                  <th>Active Loads</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="rooms-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab: Registered Objects -->
+      <div class="tab-content" id="tab-objects">
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>RFID / BLE Tagged Belongings</h2>
+              <p class="section-desc">Monitored objects categorized by Priority (High / Medium / Low). Toggle presence to simulate taking or leaving an item.</p>
+            </div>
+            <button class="btn btn-primary" id="btn-open-add-object-modal">+ Register Tagged Object</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tag ID</th>
+                  <th>Object Description</th>
+                  <th>Category</th>
+                  <th>Priority</th>
+                  <th>Assigned Room</th>
+                  <th>Current State</th>
+                  <th>Owner</th>
+                  <th>Sensor Action</th>
+                </tr>
+              </thead>
+              <tbody id="objects-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab: Devices -->
+      <div class="tab-content" id="tab-devices">
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>Smart Power Relay & Remote Isolation</h2>
+              <p class="section-desc">Remote cutoffs for projectors, HVAC, and lab equipment left active in empty rooms.</p>
+            </div>
+            <button class="btn btn-primary" id="btn-open-add-device-modal">+ Add Electrical Appliance</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Appliance Name</th>
+                  <th>Type</th>
+                  <th>Room</th>
+                  <th>Load (Watts)</th>
+                  <th>Current Power</th>
+                  <th>Energy Hazard State</th>
+                  <th>Remote Relay</th>
+                </tr>
+              </thead>
+              <tbody id="devices-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab: Simulation -->
+      <div class="tab-content" id="tab-simulation">
+        <section class="section-container">
+          <div class="section-header">
+            <h2>IoT Hardware Simulation Sandbox</h2>
+            <p class="section-desc">Simulate ESP32 RFID scans, PIR motion sensor triggers, and review real-time payloads.</p>
+          </div>
+          <div class="sim-panel-grid">
+            <div class="card sim-card">
+              <h3>Scenario 1: Person Leaves Lab with Bag & Projector ON</h3>
+              <p>Simulates the last person exiting AI & Robotics Lab (LAB-101), leaving their laptop bag and 4K projector running.</p>
+              <button class="btn btn-danger btn-block" onclick="runSimScenario('last-person-out')">Execute "Forgotten Items + Vacant Room"</button>
+            </div>
+
+            <div class="card sim-card">
+              <h3>Scenario 2: Normal Occupancy Broadcast</h3>
+              <p>Sends periodic keep-alive telemetry simulating human presence detected by the PIR motion sensor in LAB-204.</p>
+              <button class="btn btn-primary btn-block" onclick="runSimScenario('occupied-telemetry')">Send Occupied Telemetry</button>
+            </div>
+
+            <div class="card sim-card">
+              <h3>Scenario 3: Complete Room Clear</h3>
+              <p>Simulates users taking their belongings and switching off all appliances before exiting.</p>
+              <button class="btn btn-success btn-block" onclick="runSimScenario('clean-exit')">Execute Clean Room Exit</button>
+            </div>
+          </div>
+
+          <div class="card terminal-card">
+            <div class="terminal-header">
+              <span>Telemetry Terminal Log</span>
+              <button class="btn-clean" onclick="clearTerminal()">Clear</button>
+            </div>
+            <pre id="sim-terminal-output" class="terminal-body">> ForgetGuard Telemetry Ready. Listening for sensor events on /api/sensor-data...</pre>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Modal: Add Room -->
+  <div class="modal-overlay" id="modal-add-room">
+    <div class="modal-box">
+      <h3>Register New Room</h3>
+      <form id="form-add-room">
+        <div class="form-group">
+          <label for="room-name">Room Name</label>
+          <input type="text" id="room-name" required placeholder="e.g. Physics Research Lab">
+        </div>
+        <div class="form-group">
+          <label for="room-code">Room / Gateway Code</label>
+          <input type="text" id="room-code" required placeholder="e.g. LAB-402">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-room')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add Object -->
+  <div class="modal-overlay" id="modal-add-object">
+    <div class="modal-box">
+      <h3>Register Tagged Belonging</h3>
+      <form id="form-add-object">
+        <div class="form-group">
+          <label for="obj-tag">RFID / BLE Tag ID</label>
+          <input type="text" id="obj-tag" required placeholder="e.g. RFID-BAG-105">
+        </div>
+        <div class="form-group">
+          <label for="obj-name">Item Name</label>
+          <input type="text" id="obj-name" required placeholder="e.g. Dell XPS 15 Backpack">
+        </div>
+        <div class="form-group">
+          <label for="obj-category">Category</label>
+          <select id="obj-category">
+            <option value="Bags">Bags / Backpack</option>
+            <option value="Electronics & Chargers">Electronics & Chargers</option>
+            <option value="Keys">Keys / Key Fob</option>
+            <option value="Wallets & IDs">Wallets & University ID</option>
+            <option value="Lab Equipment">Lab Equipment</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="obj-priority">Object Priority</label>
+          <select id="obj-priority">
+            <option value="HIGH">HIGH (Urgent Alert: Keys, Wallet, Laptop)</option>
+            <option value="MEDIUM">MEDIUM (Charger, Headphones, Lab Tools)</option>
+            <option value="LOW">LOW (Notebook, Jacket, Umbrella)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="obj-room">Assigned Room</label>
+          <select id="obj-room" required></select>
+        </div>
+        <div class="form-group">
+          <label for="obj-owner">Owner Name</label>
+          <input type="text" id="obj-owner" placeholder="e.g. Jordan Smith">
+        </div>
+        <div class="form-group">
+          <label for="obj-contact">Owner Contact</label>
+          <input type="text" id="obj-contact" placeholder="e.g. j.smith@univ.edu">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-object')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Register Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add Device -->
+  <div class="modal-overlay" id="modal-add-device">
+    <div class="modal-box">
+      <h3>Add Electrical Appliance</h3>
+      <form id="form-add-device">
+        <div class="form-group">
+          <label for="dev-name">Appliance Name</label>
+          <input type="text" id="dev-name" required placeholder="e.g. Overhead Projector">
+        </div>
+        <div class="form-group">
+          <label for="dev-type">Appliance Type</label>
+          <select id="dev-type">
+            <option value="Projector">Projector</option>
+            <option value="Air Conditioner">Air Conditioner (HVAC)</option>
+            <option value="Lighting">Lighting System</option>
+            <option value="Lab Instrument">Lab Instrument / Power Supply</option>
+            <option value="Ventilation">Exhaust / Fan</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="dev-room">Room Location</label>
+          <select id="dev-room" required></select>
+        </div>
+        <div class="form-group">
+          <label for="dev-watts">Power Rating (Watts)</label>
+          <input type="number" id="dev-watts" value="250" step="10">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-device')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Device</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

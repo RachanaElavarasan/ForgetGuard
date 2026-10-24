@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Account — ForgetGuard IoT Sentinel</title>
+  <meta name="description" content="Create a new account for ForgetGuard IoT Forgotten Object and Last-Person-Out Sentinel.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+      background-image: 
+        radial-gradient(circle at 20% 25%, rgba(6, 182, 212, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 80% 75%, rgba(139, 92, 246, 0.12) 0%, transparent 45%);
+    }
+
+    .register-container {
+      width: 100%;
+      max-width: 980px;
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 35px -5px rgba(6, 182, 212, 0.2);
+      overflow: hidden;
+    }
+
+    .register-brand-side {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85));
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .login-logo-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35);
+    }
+
+    .login-logo-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .login-brand-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(90deg, #fff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .login-tagline {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .feature-points {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .feat-point {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+    }
+
+    .feat-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: rgba(6, 182, 212, 0.15);
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .feat-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .register-form-side {
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .register-header-text h3 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 0.35rem;
+    }
+
+    .register-header-text p {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      margin-bottom: 1.75rem;
+    }
+
+    .form-grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .register-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .input-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 0.35rem;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.75rem 0.95rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #38bdf8;
+      background: rgba(255, 255, 255, 0.07);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+    }
+
+    .btn-register-submit {
+      margin-top: 0.75rem;
+      padding: 0.85rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      border: none;
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-register-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(6, 182, 212, 0.4);
+    }
+
+    .signin-prompt-row {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .signin-link {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 700;
+      margin-left: 0.35rem;
+    }
+
+    .signin-link:hover {
+      text-decoration: underline;
+    }
+
+    .btn-autofill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      color: #cbd5e1;
+      padding: 0.5rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      transition: all 0.2s;
+      width: 100%;
+      text-align: center;
+    }
+
+    .btn-autofill:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: #fff;
+      border-color: #38bdf8;
+    }
+
+    .register-error {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #f43f5e;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 850px) {
+      .register-container {
+        grid-template-columns: 1fr;
+      }
+      .register-brand-side {
+        display: none;
+      }
+      .register-form-side {
+        padding: 2.25rem 1.5rem;
+      }
+      .form-grid-two {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="register-container">
+      <!-- Left Info Side -->
+      <div class="register-brand-side">
+        <div>
+          <div class="login-logo">
+            <div class="login-logo-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <circle cx="12" cy="11" r="3"/>
+              </svg>
+            </div>
+            <div>
+              <div class="login-brand-title">ForgetGuard</div>
+              <span class="badge-iot">IoT Space Sentinel</span>
+            </div>
+          </div>
+          <p class="login-tagline">
+            Register your profile to secure your personal belongings with RFID tags and receive real-time last-person-out departure safety scores.
+          </p>
+
+          <div class="feature-points">
+            <div class="feat-point">
+              <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div><strong>Personal Item Sentinel:</strong> Tag and track your Backpack, Car Keys, Charger, and Student ID card.</div>
+            </div>
+            <div class="feat-point">
+              <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div><strong>Smart Exit Checklist:</strong> Interactive checklist helps you verify you have everything before leaving.</div>
+            </div>
+            <div class="feat-point">
+              <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div><strong>Instant Departure Alert:</strong> Loud buzzer and voice synthesizer announces if you leave items behind.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.78rem; color: #64748b;">
+          Encrypted Authentication · Multi-Facility Ready · v2.4
+        </div>
+      </div>
+
+      <!-- Right Registration Form Side -->
+      <div class="register-form-side">
+        <div class="register-header-text">
+          <h3>Create Your Account</h3>
+          <p>Register as a Student, Employee, or System Administrator</p>
+        </div>
+
+        <button type="button" class="btn-autofill" onclick="autoFillDemoData()">
+          ⚡ Quick Auto-Fill Demo Student Data
+        </button>
+
+        {% if error %}
+        <div class="register-error">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          {{ error }}
+        </div>
+        {% endif %}
+
+        <form class="register-form" method="POST" action="/register" onsubmit="return validatePasswords()">
+          <div class="form-grid-two">
+            <div>
+              <div class="input-label-row">
+                <label for="name">Full Name</label>
+              </div>
+              <input type="text" id="name" name="name" class="input-field" required placeholder="e.g. Emily Clark">
+            </div>
+
+            <div>
+              <div class="input-label-row">
+                <label for="username">Username / ID</label>
+              </div>
+              <input type="text" id="username" name="username" class="input-field" required placeholder="e.g. emily_clark">
+            </div>
+          </div>
+
+          <div class="form-grid-two">
+            <div>
+              <div class="input-label-row">
+                <label for="email">Campus Email</label>
+              </div>
+              <input type="email" id="email" name="email" class="input-field" required placeholder="emily@univ.edu">
+            </div>
+
+            <div>
+              <div class="input-label-row">
+                <label for="role">Account Role</label>
+              </div>
+              <select id="role" name="role" class="input-field">
+                <option value="student">🎓 Student / Employee</option>
+                <option value="admin">🛡️ Facility Administrator</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <div class="input-label-row">
+              <label for="assigned_room">Primary Room / Laboratory</label>
+            </div>
+            <select id="assigned_room" name="assigned_room" class="input-field">
+              {% for room in rooms %}
+              <option value="{{ room.name }}">{{ room.name }} ({{ room.code }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-grid-two">
+            <div>
+              <div class="input-label-row">
+                <label for="password">Create Password</label>
+              </div>
+              <input type="password" id="password" name="password" class="input-field" required placeholder="••••••••">
+            </div>
+
+            <div>
+              <div class="input-label-row">
+                <label for="confirm_password">Confirm Password</label>
+              </div>
+              <input type="password" id="confirm_password" name="confirm_password" class="input-field" required placeholder="••••••••">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-register-submit">
+            Complete Registration & Enter
+          </button>
+        </form>
+
+        <div class="signin-prompt-row">
+          Already have a ForgetGuard account?
+          <a href="/login" class="signin-link">Sign In here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function validatePasswords() {
+      const p1 = document.getElementById('password').value;
+      const p2 = document.getElementById('confirm_password').value;
+      if (p1 !== p2) {
+        alert('Passwords do not match. Please re-enter your password.');
+        return false;
+      }
+      if (p1.length < 4) {
+        alert('Password must be at least 4 characters.');
+        return false;
+      }
+      return true;
+    }
+
+    function autoFillDemoData() {
+      const randomNum = Math.floor(100 + Math.random() * 900);
+      document.getElementById('name').value = 'Emily Clark (Research Assistant)';
+      document.getElementById('username').value = 'emily' + randomNum;
+      document.getElementById('email').value = 'emily' + randomNum + '@univ.edu';
+      document.getElementById('role').value = 'student';
+      document.getElementById('password').value = 'pass123';
+      document.getElementById('confirm_password').value = 'pass123';
+    }
+  </script>
+</body>
+</html>
